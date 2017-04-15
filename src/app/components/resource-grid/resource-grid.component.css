@@ -1,0 +1,10 @@
+table {
+  border: 1px solid gray;
+  width: 1480px;
+}
+
+th, td {
+    border:1px solid steelblue;
+    vertical-align: top;
+    text-align: left;
+}
