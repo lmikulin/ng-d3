@@ -1,4 +1,12 @@
-<a routerLink="svg">Resource Allocation Table and SVG</a>
+<div class="user-input">
+  <label>Number of Resources:</label>
+  <input [(ngModel)]="numResources" />
+</div>
+<div class="user-input">
+  <label>Number of Tasks:</label>
+  <input [(ngModel)]="numTasks" />
+</div>
+<a [routerLink]="['/svg', numTasks, numResources]">Resource Allocation Table and SVG</a><br/>
 <a routerLink="grid">CSS Grid Example</a>
 
 <router-outlet></router-outlet>

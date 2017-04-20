@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Resource } from '../../classes/resource';
 import { Task } from '../../classes/task';
+import { ActivatedRoute } from '@angular/router';
+
 import * as d3 from 'd3';
 
-const NUM_TASKS = 40;
-const NUM_RESOURCES = 8;
+const RESOURCE_PADDING = 8;
 
 const COL_WIDTH = 40;
 const DOW = ["S","M","T","W","R","F","S"];
@@ -31,19 +32,27 @@ export class ResourceGridComponent implements OnInit {
   private tasks = [];
   private assignments = [];
 
-  constructor() {
+  private numTasks: number;
+  private numResources: number;
+
+  constructor(private route: ActivatedRoute) {
     let now = new Date();
     this.year = now.getFullYear();
     this.month = now.getMonth();
     this.day = now.getDate();
 
-    this.tasks = this.getTasks(NUM_TASKS);
-    this.resources = this.getResources(NUM_RESOURCES);
-    this.assignments = this.getAssignments(this.tasks, this.resources);
+    this.numTasks = this.route.snapshot.params['tasks'];
+    this.numResources = this.route.snapshot.params['resources'];
   }
 
   ngOnInit() {
     this.createTopRow();
+
+    // create all the data
+    this.tasks = this.getTasks(this.numTasks);
+    this.resources = this.getResources(this.numResources);
+    this.assignments = this.getAssignments(this.tasks, this.resources);
+
     this.createLeftCol();
     this.addSvgGrid();
     this.addAssignedTasks();
@@ -52,7 +61,7 @@ export class ResourceGridComponent implements OnInit {
   getResources(numResources) {
     let resources = [];
     for (let i=0; i < numResources; i++) {
-      resources.push(new Resource());
+      resources.push(new Resource(i));
     }
     return resources;
   }
@@ -69,9 +78,10 @@ export class ResourceGridComponent implements OnInit {
     let assignments = {};
     let assArray = [];
     // assign all the tasks to available resources
-    for(let i=0; i < NUM_TASKS; i++) {
+    for(let i=0; i < this.numTasks; i++) {
       // pick a random resource
-      let resourceIndex = Math.floor(Math.random() * NUM_RESOURCES);
+      let resourceIndex = Math.round(Math.random() * this.numResources);
+      resourceIndex = resourceIndex == this.numResources ? this.numResources - 1 : resourceIndex;
       if (!assignments[resourceIndex.toString()]) {
         let newItem = {
           resource: resources[resourceIndex],
@@ -122,7 +132,7 @@ export class ResourceGridComponent implements OnInit {
     resourceCols.append("td")
       .style("border", "1px solid steelblue")
       .style("width", "180px")
-      .style("height", (item, index) => `${this.assignments[index].tasks.length * 12}px`)
+      .style("height", (item, index) => `${TASK_PADDING + (this.assignments[index] ? this.assignments[index].tasks.length : 0) * (TASK_HEIGHT + TASK_PADDING)}px`)
       .text(function(item, index) {return item.name});
 
     resourceCols.append("td")
@@ -138,7 +148,7 @@ export class ResourceGridComponent implements OnInit {
       .style("left", 0)
       .style("top", 0)
       .style("z-index", 1)
-      .attr("height", 800)
+      .attr("height", this.numTasks * (TASK_HEIGHT + TASK_PADDING) + this.numResources * RESOURCE_PADDING)
       .attr("width", 1600)
       .attr("id", "grid");
   }
@@ -215,7 +225,7 @@ export class ResourceGridComponent implements OnInit {
   yFromAssignedTask(assignmentIndex, taskIndex) {
     let offset = TASK_PADDING;
     for(let i=0; i < assignmentIndex; i++) {
-      offset += (TASK_PADDING + TASK_HEIGHT) * this.assignments[i].tasks.length;
+      offset += (TASK_PADDING + TASK_HEIGHT) * this.assignments[i].tasks.length + RESOURCE_PADDING;
     }
     offset += (TASK_PADDING + TASK_HEIGHT) * taskIndex;
     return offset;

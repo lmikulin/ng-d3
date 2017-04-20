@@ -6,11 +6,11 @@
 }
 
 .container > * {
-  background-color: rgba(255, 228, 196, 0.5);
   border: 1px solid lightgray;
 }
 
-.day { grid-row-start: 1; grid-row-end: 6;}
+.day { grid-row-start: 1; grid-row-end: span 6;}
+.day0 { grid-column: 1}
 .day1 { grid-column: 2}
 .day2 { grid-column: 3}
 .day3 { grid-column: 4}
@@ -19,7 +19,13 @@
 .day6 { grid-column: 7}
 .day7 { grid-column: 8}
 
-.name {grid-column-start: 1; grid-column-end: -1;}
+/* name also behaves like an inner grid */
+.name {
+  display: grid;
+  grid-column-start: 1;
+  grid-column-end: -1;
+  grid-template-columns: 120px auto;
+}
 .name0 { grid-row: 1}
 .name1 { grid-row: 2}
 .name2 { grid-row: 3}
